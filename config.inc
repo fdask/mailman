@@ -1,6 +1,9 @@
 <?php
 class Config {
     public static $debug = true;
+
+    public static $playerHealthStart = 100;
+    public static $playerGoldStart = 100;
     
     public static function autoload($class) {
         $file = __DIR__ . "/include/" . str_replace('\\', '/', strtolower($class)) . ".inc";
