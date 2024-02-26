@@ -14,6 +14,14 @@ class Path {
         }
 
         $this->yPos = 0;
+
+        if ($orig) {
+            $this->origTown = $orig;
+        }
+
+        if ($dest) {
+            $this->destTown = $orig;
+        }
     }
 
     public function getDistance() {
@@ -69,9 +77,9 @@ class Path {
 
     public function reversePath() {
         $this->terrain = array_reverse($this->terrain);
-        $tmp = $this->orig;
-        $this->orig = $this->dest;
-        $this->dest = $tmp;
+        $tmp = $this->origTown;
+        $this->orig = $this->destTown;
+        $this->destTown = $tmp;
     }
 
     public function __toString() {

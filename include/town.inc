@@ -5,7 +5,7 @@ class Town {
     public $level;
 
     public function __construct($level = null) {
-        $this->name = uniqid("TOWN-", true);
+        $this->name = Config::randomWords(3, "-");
         $this->restCost = rand(0, 10);
 
         if (!$level) {

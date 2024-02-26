@@ -60,4 +60,10 @@ class Map {
 
         return $ret;
     }
+
+    public function __toString() {
+        $ret = "Towns: " . implode(",", array_keys($this->towns)) . "\n";
+
+        return $ret;
+    }
 }
