@@ -9,7 +9,20 @@ class Map {
     }
 
     public function addPath(Path $p) {
-        $this->paths[] = $p;
+        // don't clobber an existing path
+        $replaced = false;
+
+        for ($x = 0; $x < count($this->paths); $x++) {
+            if ($this->paths[$x]->getOrigTown() == $p->origTown && $this->paths[$x]->getDestTown() == $p->destTown) {
+                // replace an existing path
+                $replaced = true;
+                $this->paths[$x] = $p;
+            }
+        }
+
+        if (!$replaced) {
+            $this->paths[] = $p;
+        }
     }
 
     // do we have a path?
