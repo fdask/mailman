@@ -117,10 +117,11 @@ class MailMan {
                         } else {
                             // we do not have the path
                             if (Config::$debug) {
-                                echo "We do not have the path.  Creating new one...\n";
+                                echo "We do not have the path.  ($orig to $dest).  Creating new one...\n";
                             }
                             
                             $p = new Path($orig, $dest);
+                            $this->map->addPath($p);
                             $this->path = $p;
                         }
 
@@ -133,15 +134,15 @@ class MailMan {
 
                         // close the travel select
                         $this->travelSelect = false;
+                    } else if ($pStatus == Player::$statusTravel) {
+                        $this->enterTown();
                     }
 
                     break;
                 case 'a':
                     // move left (to origin)
                     if ($pStatus == Player::$statusTravel) {
-                        if ($this->path->yPos > 0) {
-                            $this->path->yPos--;
-                        }
+                        $this->path->moveLeft();
                     }
 
                     break;
@@ -159,43 +160,13 @@ class MailMan {
                 case 'd':
                     // move right (to destination)
                     if ($pStatus == Player::$statusTravel) {
-                        if ($this->path->yPos <= $this->path->getDistance()) {
-                            $this->path->yPos++;
-                        }
+                        $this->path->moveRight();
                     }
 
                     break;
                 case 'e':
                     if ($pStatus == Player::$statusTravel) {
-                        // enter town
-                        if ($this->path->yPos == 0) {
-                            // return to Orig
-                            $this->town = $this->map->getTown($this->path->origTown);
-
-                            echo "Looking for town (" . $this->path->origTown . ")\n";
-                            var_dump($this->path);
-                            $this->player->setStatus(Player::$statusTown);
-                            if (Config::$debug) {
-                                echo "Entering origTown " . $this->town->getName() . "\n";
-                            }
-                        } else if ($this->path->yPos == $this->path->getDistance() + 1) {
-                            // go to Dest
-                            $t = $this->map->getTown($this->path->destTown);
-
-                            if ($t) {
-                                $this->town = $t;
-                            
-                                $this->player->setStatus(Player::$statusTown);
-
-                                if (Config::$debug) {
-                                    echo "Entering destTown " . $this->town->getName() . "\n";
-                                }
-                            } else {
-                                if (Config::$debug) {
-                                    die("Don't have town named " . $this->path->destTown);
-                                }
-                            }
-                        }
+                        $this->enterTown();
                     }
 
                     break;
@@ -204,6 +175,11 @@ class MailMan {
                     if (!$this->inventory) {
                         $this->inventory = true;
                     }
+
+                    break;
+                case 'm':
+                    // dump the map
+                    print_r($this->map);
 
                     break;
                 case 'q':
@@ -253,6 +229,21 @@ class MailMan {
             // draw
             echo $this;
         }
+    }
+
+    private function enterTown() {
+        if ($this->path->yPos == 0) {
+            // return to Orig
+            $this->town = $this->map->getTown($this->path->origTown);
+        } else if ($this->path->yPos == $this->path->getDistance() + 1) {
+            // enter destination
+            $this->town = $this->map->getTown($this->path->destTown);
+        }
+            
+        $this->player->setStatus(Player::$statusTown);
+
+        // add the town back to the map
+        $this->map->addPath($this->path);
     }
 
     private function tick() {
@@ -318,8 +309,10 @@ class MailMan {
 
                     break;
                 case Player::$statusTravel:
-                    $ret .= "TRAVELLING\n\n";
-                    
+                    $ret .= "TRAVELLING\n";
+                    $ret .= "From: " . $this->path->getOrigTown() . "\n";
+                    $ret .= "  To: " . $this->path->getDestTown() . "\n";
+
                     if ($this->path->yPos > 0) {
                         $ret .= "a) Back\n";
                     }

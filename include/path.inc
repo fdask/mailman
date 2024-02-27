@@ -1,8 +1,15 @@
 <?php
 class Path {
+    // an array holding the terrain objects
     public $terrain;
+
+    // string name of the originating town
     public $origTown;
+
+    // string name of the destination town
     public $destTown;
+
+    // where is the player on the path
     public $yPos;
 
     public function __construct($orig = false, $dest = false) {
@@ -50,10 +57,11 @@ class Path {
     }
 
     private function terrainToString() {
+        // origin town
         if ($this->yPos == 0) {
-            $ret = Colors::bg_color("light_gray", "X");
+            $ret = Colors::bg_color("light_gray", "T");
         } else {
-            $ret = "X";
+            $ret = "T";
         }
         
         $ret .= "-";
@@ -66,10 +74,11 @@ class Path {
             }
         }
 
+        // destination town
         if (count($this->terrain) + 1 == $this->yPos) {
-            $ret .= Colors::bg_color("light_gray", "X");
+            $ret .= Colors::bg_color("light_gray", "T");
         } else {
-            $ret .= "X";
+            $ret .= "T";
         }
 
         return $ret;
@@ -77,9 +86,30 @@ class Path {
 
     public function reversePath() {
         $this->terrain = array_reverse($this->terrain);
+        
         $tmp = $this->origTown;
-        $this->orig = $this->destTown;
+        $this->origTown = $this->destTown;
         $this->destTown = $tmp;
+    }
+
+    public function moveLeft() {
+        if ($this->yPos > 0) {
+            $this->yPos--;
+
+            if (isset($this->terrain[$this->yPos - 1])) {
+                $this->terrain[$this->yPos - 1]->setVisible();
+            }
+        }
+    }
+
+    public function moveRight() {
+        if ($this->yPos <= $this->getDistance()) {
+            $this->yPos++;
+            
+            if (isset($this->terrain[$this->yPos - 1])) {
+                $this->terrain[$this->yPos - 1]->setVisible();
+            }
+        }
     }
 
     public function __toString() {
